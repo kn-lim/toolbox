@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "github>kn-lim/homelab//.renovaterc.json5"
+  ],
+  packageRules: [
+    {
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["major"],
+      // Breaking changes for Github Actions should not affect the container image
+      commitMessagePrefix: "ci(github-action):",
+    },
+  ],
+}
