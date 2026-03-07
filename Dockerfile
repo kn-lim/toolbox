@@ -15,9 +15,10 @@ COPY mise.toml .
 RUN mise trust . && \
     mise install && \
     mkdir /tools && \
-    for tool in argocd aws jq task terragrunt terraform yq; do \
+    for tool in argocd jq task terragrunt terraform yq; do \
         cp $(mise which $tool) /tools/$tool; \
     done && \
+    cp -r $(dirname $(mise which aws)) /aws && \
     cp -r $(dirname $(dirname $(mise which go))) /go
 
 FROM debian:13.3-slim
@@ -30,7 +31,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /tools /usr/local/bin
+COPY --from=builder /aws /usr/local/aws
 COPY --from=builder /go /usr/local/go
-ENV PATH="/usr/local/go/bin:$PATH"
+ENV PATH="/usr/local/go/bin:/usr/local/aws:$PATH"
 
 WORKDIR /
