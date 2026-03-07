@@ -15,9 +15,10 @@ COPY mise.toml .
 RUN mise trust . && \
     mise install && \
     mkdir /tools && \
-    for tool in argocd jq task terragrunt terraform yq; do \
+    for tool in argocd aws jq task terragrunt terraform yq; do \
         cp $(mise which $tool) /tools/$tool; \
-    done
+    done && \
+    cp -r $(dirname $(dirname $(mise which go))) /go
 
 FROM debian:13.3-slim
 
@@ -28,6 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /tools/ /usr/local/bin/
+COPY --from=builder /tools /usr/local/bin
+COPY --from=builder /go /usr/local/go
+ENV PATH="/usr/local/go/bin:$PATH"
 
 WORKDIR /
